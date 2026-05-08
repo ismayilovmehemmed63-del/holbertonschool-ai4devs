@@ -1,25 +1,21 @@
-##Project: Prompting Debug Assistant - Bug Descriptions
+# Bug Analysis Report
 
-## Bug 1
-**File Name:** bug1.py
-**Intended Behavior:** The function `calculate_average` should return the mean of a list and handle empty lists by returning 0. The `get_last_n_elements` function should return the last `n` elements safely using valid zero-based indices.
-**Issue Type:** ZeroDivisionError and IndexError (Out of Bounds).
-**Solution Suggestion:** Add an `if not numbers: return 0` check in the average function and fix the loop range in the slicing function to `len(items)`.
+## Bug 1: bug1.py
+- **Issue:** ZeroDivisionError and IndexError.
+- **Root Cause:** The average calculation doesn't check for empty lists (division by zero). The slicing loop uses `len(items) + 1`, which exceeds the valid index range.
+- **Solution:** Add `if not numbers: return 0` and change the loop range to `len(items)`.
 
-## Bug 2
-**File Name:** bug2.js
-**Intended Behavior:** The script should asynchronously fetch user data and ensure the `user` variable is populated before the dashboard attempts to access its properties (name/role).
-**Issue Type:** Asynchronous Logic Error (Race Condition).
-**Solution Suggestion:** Implement a Promise or use `async/await` to wait for the `setTimeout` callback to complete before calling `displayDashboard`.
+## Bug 2: bug2.js
+- **Issue:** Asynchronous Race Condition.
+- **Root Cause:** `fetchUserData` returns the initial `null` value before the `setTimeout` callback completes. `displayDashboard` attempts to access properties of `null`.
+- **Solution:** Use `async/await` or Promises to ensure the user data is fetched before logging.
 
-## Bug 3
-**File Name:** bug3.cpp
-**Intended Behavior:** The program should allocate an array that remains valid in memory during its usage in `main`, and the iteration should stay within the array's defined size.
-**Issue Type:** Memory Safety (Dangling Pointer) and Buffer Overflow.
-**Solution Suggestion:** Use dynamic memory allocation (`new`) for the array or pass the array by reference, and fix the loop condition from `i <= n` to `i < n`.
+## Bug 3: bug3.cpp
+- **Issue:** Dangling Pointer and Buffer Overflow.
+- **Root Cause:** Returning a pointer to a local stack array which is deallocated. The loop in `main` uses `<=` which accesses memory outside the array bounds.
+- **Solution:** Use dynamic memory (`new`) and update the loop condition to `i < n`.
 
-## Bug 4
-**File Name:** bug4.py
-**Intended Behavior:** The script should take numerical input, convert it to an integer, and calculate the factorial recursively with a base case that handles negative numbers safely.
-**Issue Type:** Logic Error (Infinite Recursion) and TypeError.
-**Solution Suggestion:** Convert `user_val` using `int()`, and add a check to ensure `n` is non-negative before starting the recursion.
+## Bug 4: bug4.py
+- **Issue:** TypeError and Potential Infinite Recursion.
+- **Root Cause:** `input()` returns a string, causing a TypeError in math operations. Also, negative inputs cause infinite recursion as they never hit the `n == 0` base case.
+- **Solution:** Wrap input in `int()` and add a check for `n < 0`.
