@@ -1,23 +1,20 @@
-function fetchUserData(userId) {
-    let user = null;
-    console.log("Fetching data for user: " + userId);
-    setTimeout(() => {
-        console.log("Data received from server...");
-        user = {
-            id: userId,
-            name: "Admin",
-            role: "Developer"
-        };
-    }, 2000);
-
-    return user; 
-}
-function displayDashboard(userId) {
-    const userData = fetchUserData(userId);
-
-    console.log("--- Dashboard ---");
-    console.log("User: " + userData.name); 
-    console.log("Role: " + userData.role);
+function fetchUserData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                name: "John",
+                role: "Developer"
+            });
+        }, 2000);
+    });
 }
 
-displayDashboard(101);
+async function displayDashboard() {
+    const user = await fetchUserData();
+
+    console.log("Dashboard");
+    console.log("User:", user.name);
+    console.log("Role:", user.role);
+}
+
+displayDashboard();
