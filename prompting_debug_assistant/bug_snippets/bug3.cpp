@@ -1,19 +1,26 @@
 #include <iostream>
-#include <vector>
-int* createArray(int size) {
-    int arr[size]; 
-    for(int i = 0; i < size; i++) {
+using namespace std;
+
+int* createArray(int n) {
+    int* arr = new int[n];
+
+    for(int i = 0; i < n; i++) {
         arr[i] = i * 10;
     }
-    return arr; 
+
+    return arr;
 }
 
 int main() {
     int n = 5;
-    int* myPtr = createArray(n);  
-    std::cout << "Array elements: " << std::endl;
-    for(int i = 0; i <= n; i++) {
-        std::cout << "Index " << i << ": " << myPtr[i] << std::endl;
+
+    int* ptr = createArray(n);
+
+    for(int i = 0; i < n; i++) {
+        cout << ptr[i] << endl;
     }
+
+    delete[] ptr;
+
     return 0;
 }
