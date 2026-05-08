@@ -1,4 +1,4 @@
-# Project: Prompting Debug Assistant - Bug Descriptions
+##Project: Prompting Debug Assistant - Bug Descriptions
 
 ## Bug 1
 **File Name:** bug1.py
