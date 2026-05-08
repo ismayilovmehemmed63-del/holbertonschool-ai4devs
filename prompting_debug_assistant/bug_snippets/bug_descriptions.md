@@ -1,43 +1,25 @@
-# Project: Prompting Debug Assistant - Bug Descriptions
+# Bug Descriptions - Debugging Task
 
-## Bug 1 - bug1.py
-**Intended Behavior:**
-The `calculate_average` function is designed to safely calculate the mean of a list of numbers. It should include a check for empty lists to return 0 or a message, preventing a crash. The `get_last_n_elements` function is intended to return a sub-list of the last `n` items without exceeding the valid index range of the list.
+## Bug 1
+**File Name:** bug1.py
+**Intended Behavior:** The code should compute the average of a list of integers. It must include a validation step to return 0 or handle the case where the list is empty. Additionally, it should slice the list correctly without index overflow.
+**Issue Type:** Logic Error / ZeroDivisionError.
+**Detailed Notes:** The script fails when an empty list is provided because it divides by zero. Also, the loop boundary in the slicing function exceeds the list range by 1.
 
-**Issue Type:** ZeroDivisionError and Index Out of Range.
-**Detailed Notes:**
-* **ZeroDivisionError:** The script crashes with a ZeroDivisionError when an empty list is passed because `len(numbers)` becomes zero.
-* **Off-by-one Error:** The loop `range(start_index, len(items) + 1)` attempts to access `items[len(items)]`, which is out of bounds for a zero-indexed list.
+## Bug 2
+**File Name:** bug2.js
+**Intended Behavior:** This script should fetch data from a source and wait for the result to be stored in the 'user' variable before trying to access its attributes. A promise or async/await should be used to manage the timing.
+**Issue Type:** Asynchronous Execution Error.
+**Detailed Notes:** The dashboard displays data before it is actually fetched, causing it to read properties of 'null'. This happens because the function returns immediately while the timeout is still running.
 
----
+## Bug 3
+**File Name:** bug3.cpp
+**Intended Behavior:** The goal is to allocate an array that remains accessible throughout the program's lifecycle and iterate through it safely using defined boundaries.
+**Issue Type:** Memory Safety / Segmentation Fault.
+**Detailed Notes:** The function returns a pointer to a local stack-allocated array which is destroyed upon exit. The loop in the main function also attempts to access an out-of-bounds index.
 
-## Bug 2 - bug2.js
-**Intended Behavior:**
-This script aims to simulate a database fetch. The `fetchUserData` function should ideally use a Promise or callback to ensure that the `user` data is fully loaded before `displayDashboard` attempts to access the user's name or role.
-
-**Issue Type:** Asynchronous Execution / Null Pointer Reference.
-**Detailed Notes:**
-* **Async Mismanagement:** `setTimeout` does not block execution. The function returns `null` immediately before the 2-second timer finishes.
-* **Null Reference:** `userData.name` fails because `userData` is still `null` at the moment of execution.
-
----
-
-## Bug 3 - bug3.cpp
-**Intended Behavior:**
-The program is intended to allocate memory for an integer array, fill it with data, and safely print those values in the `main` function. It should manage memory lifecycles so that pointers remain valid during traversal.
-
-**Issue Type:** Memory Safety / Dangling Pointer / Segmentation Fault.
-**Detailed Notes:**
-* **Dangling Pointer:** Returning the address of a local array `int arr[size]` is dangerous because that memory is freed once `createArray` returns.
-* **Out of Bounds:** The loop condition `i <= n` attempts to access the 6th element of a 5-element array, leading to memory corruption.
-
----
-
-## Bug 4 - bug4.py
-**Intended Behavior:**
-The script is intended to take a user's numerical input, convert it to an integer, and calculate its factorial using recursion. It should handle non-integer strings and negative numbers without causing a crash or infinite recursion.
-
+## Bug 4
+**File Name:** bug4.py
+**Intended Behavior:** The program should convert user input into an integer and recursively calculate its factorial. It should have a base case to prevent negative numbers from triggering infinite recursion.
 **Issue Type:** Recursion Error / Type Mismatch.
-**Detailed Notes:**
-* **Infinite Recursion:** No base case for negative numbers exists; `factorial(-1)` will call `factorial(-2)` forever until the stack overflows.
-* **Type Error:** `input()` returns a string. The code fails when it tries to subtract 1 from a string (`user_val - 1`).
+**Detailed Notes:** Input is captured as a string and never converted to an integer, making math impossible. Furthermore, negative inputs lead to infinite recursive calls, causing a stack overflow.
