@@ -1,25 +1,25 @@
-# Bug Descriptions - Debugging Task
+# Bug Descriptions for Prompting Debug Assistant
 
 ## Bug 1
 **File Name:** bug1.py
-**Intended Behavior:** The code should compute the average of a list of integers. It must include a validation step to return 0 or handle the case where the list is empty. Additionally, it should slice the list correctly without index overflow.
-**Issue Type:** Logic Error / ZeroDivisionError.
-**Detailed Notes:** The script fails when an empty list is provided because it divides by zero. Also, the loop boundary in the slicing function exceeds the list range by 1.
+**Intended Behavior:** The `calculate_average` function should return the mean of a list and return 0 if the list is empty. The `get_last_n_elements` function should return exactly the last `n` elements of a list using valid indices.
+**Issue Type:** ZeroDivisionError and Index Out of Range.
+**Detailed Notes:** The code lacks a check for empty input, leading to division by zero. Also, the loop boundary goes to `len(items) + 1`, causing an access beyond the list's capacity.
 
 ## Bug 2
 **File Name:** bug2.js
-**Intended Behavior:** This script should fetch data from a source and wait for the result to be stored in the 'user' variable before trying to access its attributes. A promise or async/await should be used to manage the timing.
-**Issue Type:** Asynchronous Execution Error.
-**Detailed Notes:** The dashboard displays data before it is actually fetched, causing it to read properties of 'null'. This happens because the function returns immediately while the timeout is still running.
+**Intended Behavior:** The script should asynchronously fetch user data and wait for the response to be stored in the `user` variable before attempting to log properties like `name` or `role`.
+**Issue Type:** Asynchronous Logic Error / Null Pointer Exception.
+**Detailed Notes:** The `user` variable remains `null` when the function returns because `setTimeout` is non-blocking. Accessing `userData.name` results in a crash.
 
 ## Bug 3
 **File Name:** bug3.cpp
-**Intended Behavior:** The goal is to allocate an array that remains accessible throughout the program's lifecycle and iterate through it safely using defined boundaries.
-**Issue Type:** Memory Safety / Segmentation Fault.
-**Detailed Notes:** The function returns a pointer to a local stack-allocated array which is destroyed upon exit. The loop in the main function also attempts to access an out-of-bounds index.
+**Intended Behavior:** The program should allocate an array in memory that persists long enough for the `main` function to read it, and it should iterate exactly `n` times to print the values.
+**Issue Type:** Memory Management / Segmentation Fault.
+**Detailed Notes:** Returning a pointer to a local stack-allocated array creates a dangling pointer. The loop condition `i <= n` results in an off-by-one error, accessing invalid memory.
 
 ## Bug 4
 **File Name:** bug4.py
-**Intended Behavior:** The program should convert user input into an integer and recursively calculate its factorial. It should have a base case to prevent negative numbers from triggering infinite recursion.
-**Issue Type:** Recursion Error / Type Mismatch.
-**Detailed Notes:** Input is captured as a string and never converted to an integer, making math impossible. Furthermore, negative inputs lead to infinite recursive calls, causing a stack overflow.
+**Intended Behavior:** The script should accept a numerical input from the user, convert it to an integer type, and calculate the factorial using a recursive base case that prevents infinite loops with negative numbers.
+**Issue Type:** Logic Error (Infinite Recursion) and Type Mismatch.
+**Detailed Notes:** No validation for negative numbers leads to a stack overflow. The `input()` function returns a string, which causes mathematical operations to fail.
