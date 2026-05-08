@@ -1,15 +1,13 @@
 def factorial(n):
-    if n == 0:
+    if n < 0:
+        return "Negative numbers are not allowed"
+
+    if n == 0 or n == 1:
         return 1
-    else:
-        return n * factorial(n - 1)
 
-def process_input():
-    user_val = input("Enter a number for factorial: ")
-    result = factorial(user_val)
-    print("Result is: " + result)
+    return n * factorial(n - 1)
 
-try:
-    process_input()
-except Exception as e:
-    print(f"Oops! Something went wrong: {e}")
+
+num = int(input("Enter a number: "))
+
+print(factorial(num))
