@@ -1,8 +1,8 @@
-# Bug Descriptions for Prompting Debug Assistant
+# Bug Descriptions - AI Debugging Project
 
 ## Bug 1
 **File Name:** bug1.py
-**Intended Behavior:** The `calculate_average` function should return the mean of a list and return 0 if the list is empty. The `get_last_n_elements` function should return exactly the last `n` elements of a list using valid indices.
+**Intended Behavior:** The function `calculate_average` should return the mean of a list and return 0 if the list is empty. The function `get_last_n_elements` should return exactly the last `n` elements of a list using valid indices.
 **Issue Type:** ZeroDivisionError and Index Out of Range.
 **Detailed Notes:** The code lacks a check for empty input, leading to division by zero. Also, the loop boundary goes to `len(items) + 1`, causing an access beyond the list's capacity.
 
