@@ -10,10 +10,10 @@ function fetchUserData() {
 }
 
 async function displayDashboard() {
-    const user = await fetchUserData();
+    const user = fetchUserData(); 
 
     console.log("Dashboard");
-    console.log("User:", user.name);
+    console.log("User:", user.name); 
     console.log("Role:", user.role);
 }
 
