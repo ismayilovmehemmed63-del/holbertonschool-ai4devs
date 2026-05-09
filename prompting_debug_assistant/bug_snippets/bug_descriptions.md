@@ -35,4 +35,4 @@
 *   **Notes**: 
     *   The `range(1, n)` function stops the loop at `n-1`, failing to include the final multiplier.
     *   For an input of 5, the result is 24 instead of 120; this logic error requires changing the range to `range(1, n + 1)`.
-    *   
+      
