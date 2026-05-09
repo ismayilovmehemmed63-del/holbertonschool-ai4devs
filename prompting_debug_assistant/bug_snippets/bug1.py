@@ -1,24 +1,20 @@
-def calculate_average(numbers):
+def calculate_average(numbers) 
     if len(numbers) == 0:
+        print("Siyahı boşdur!")
         return 0
 
+    print("Hesablama başlayır...")
     total = 0
-    for i in range(len(numbers)):
-        total += numbers[i]
+    
+    for num in numbers:
+        total += num
+        print(f"Hazırkı cəm: {total}")
 
     average = total / len(numbers)
+    print("Nəticə hesablandı.")
+    
     return average
 
-
-def get_last_n_elements(items, n):
-    result = []
-
-    for i in range(len(items) - n, len(items)):
-        result.append(items[i])
-
-    return result
-
-
-my_list = [10, 20, 30, 40, 50]
-print(calculate_average(my_list))
-print(get_last_n_elements(my_list, 3))
+my_numbers = [10, 20, 30, 40, 50]
+result = calculate_average(my_numbers)
+print(f"Orta qiymət: {result}")
