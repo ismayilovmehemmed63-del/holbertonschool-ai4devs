@@ -1,73 +1,53 @@
-Başa düşdüm, başlıqların önündəki `##` işarələrini sildim və strukturu sistemin tələb etdiyi tam dəqiqliklə yenidən hazırladım.
+## Bug 1 – bug1.py
 
-Bu variantı kopyalayaraq istifadə edə bilərsən:
+*   **Intended Behavior**: 
+    The function `calculate_average(numbers)` is intended to calculate the mean value of a list. It should sum all elements and divide by the count, returning 0 if the list is empty to prevent errors.
 
----
+*   **Issue Type**: 
+    Syntax Error / Runtime Exception (Division by Zero)
 
-Bug 1 – bug1.py
-
-* **Intended Behavior**:
-The function `calculate_average(numbers)` should accept a list of numbers, sum them correctly, and return the arithmetic mean. It should also include a check to handle empty lists by returning 0 to avoid division by zero.
-* **Issue Type**:
-* Syntax Error
-* Logical Error (ZeroDivisionError)
-
-
-* **Notes**:
-* **Specific Error**: The function definition `def calculate_average(numbers)` is missing a colon (`:`) at the end.
-* **Consequence**: This causes a `SyntaxError`, and the Python script fails to compile or run.
-* **Logic Flaw**: There is no validation to check if the list is empty before dividing by its length, which would cause a crash at runtime.
-
-
+*   **Notes**: 
+    *   **Syntax**: The function definition is missing a colon (`:`) at the end.
+    *   **Logic**: There is no guard clause for an empty list, which leads to a division by zero if the input is `[]`.
 
 ---
 
-Bug 2 – bug2.js
+## Bug 2 – bug2.js
 
-* **Intended Behavior**:
-This script is intended to fetch user data asynchronously. The `displayDashboard` function should use `await` to pause execution until the `fetchUserData` promise resolves, ensuring the user's name and role are correctly logged.
-* **Issue Type**:
-* Logical Error
-* Async/Await Mismanagement
+*   **Intended Behavior**: 
+    The script should fetch user data from a simulated API asynchronously. The `displayDashboard` function must wait for the data resolution to log the user's name and role correctly.
 
+*   **Issue Type**: 
+    Logical Error / Async-Await Misuse
 
-* **Notes**:
-* **Specific Error**: The `await` keyword is missing when calling `fetchUserData()`.
-* **Consequence**: The `user` variable is assigned a `Promise` object instead of the actual data object.
-* **Outcome**: The console logs `undefined` for `user.name` and `user.role` because these properties do not exist on a pending Promise object.
-
-
+*   **Notes**: 
+    *   **Specific Issue**: The `await` keyword was omitted when calling `fetchUserData()`.
+    *   **Result**: The variable `user` receives a `Promise` instead of the data, causing `user.name` to be `undefined`.
 
 ---
 
-Bug 3 – bug3.cpp
+## Bug 3 – bug3.cpp
 
-* **Intended Behavior**:
-The program should allocate a dynamic integer array of size `n`, fill it with values, and iterate from index `0` to `n-1` to print them. Finally, it must free the allocated memory to ensure no leaks.
-* **Issue Type**:
-* Runtime Exception
-* Out-of-Bounds Memory Access
+*   **Intended Behavior**: 
+    The program should allocate a dynamic array of size `n`, populate it with values, print each element within the valid index range (0 to n-1), and then deallocate the memory.
 
+*   **Issue Type**: 
+    Runtime Exception / Out-of-Bounds Access
 
-* **Notes**:
-* **Specific Error**: The loop condition `i <= n` is an off-by-one error.
-* **Consequence**: In C++, an array of size 5 only has valid indices from 0 to 4. The loop attempts to access `ptr[5]`.
-* **Outcome**: Accessing memory outside the allocated block leads to a segmentation fault or unpredictable runtime crashes.
-
-
+*   **Notes**: 
+    *   **Specific Issue**: The loop uses `<= n` instead of `< n`, attempting to access an index outside the allocated memory.
+    *   **Consequence**: This causes a segmentation fault or memory corruption during runtime.
 
 ---
 
-Bug 4 – bug4.py
+## Bug 4 – bug4.py
 
-* **Intended Behavior**:
-The script should calculate the factorial of a number `n` by multiplying all integers from 1 up to and including `n`. For input 5, the expected output is 120.
-* **Issue Type**:
-* Logical Error
-* Off-by-one Error (Range Limit)
+*   **Intended Behavior**: 
+    The `factorial` function should return the product of all positive integers up to and including `n`. For `factorial(5)`, the output should be exactly 120.
 
+*   **Issue Type**: 
+    Logical Error / Off-by-one Error
 
-* **Notes**:
-* **Specific Error**: The `for` loop uses `range(1, n)`.
-* **Consequence**: Python's `range(start, stop)` function is exclusive of the `stop` value, meaning the loop ends at `n-1`.
-* **Outcome**: The calculation excludes the multiplier `n` itself. For example, `factorial(5)` returns 24 instead of 120. This is fixed by using `range(1, n + 1)`.
+*   **Notes**: 
+    *   **Specific Issue**: The loop uses `range(1, n)`, which excludes the value of `n`.
+    *   **Result**: The product is missing the final multiplier, resulting in 24 instead of 120. Using `range(1, n + 1)` is required.
