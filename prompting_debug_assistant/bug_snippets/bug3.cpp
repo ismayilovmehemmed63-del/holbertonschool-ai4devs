@@ -13,14 +13,12 @@ int* createArray(int n) {
 
 int main() {
     int n = 5;
-
     int* ptr = createArray(n);
 
-    for(int i = 0; i < n; i++) {
+    for(int i = 0; i <= n; i++) {
         cout << ptr[i] << endl;
     }
 
     delete[] ptr;
-
     return 0;
 }
