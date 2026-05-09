@@ -1,38 +1,53 @@
 ## Bug 1 – bug1.py
 
-*   **Intended Behavior**: The script is designed to compute the average of a list. It should verify if the list is not empty, calculate the sum of elements, and return the mean. If the list is empty, it should return 0 to maintain stability.
-*   **Issue Type**: Critical Syntax Error and Unhandled Runtime Exception (ZeroDivisionError).
+*   **Intended Behavior**: 
+    The `calculate_average` function is intended to safely calculate the arithmetic mean of a numeric list. It must include robust error handling by first validating if the input list is empty; if the list is empty, it should return a default value of 0 to prevent program crashes. For non-empty lists, it must correctly sum all elements and return the total divided by the number of elements.
+
+*   **Issue Type**: 
+    Syntax Error and Missing Input Validation (ZeroDivisionError).
+
 *   **Notes**: 
-    *   The function header is missing the mandatory colon (`:`) required by Python syntax.
-    *   The code lacks a conditional check for an empty list, which leads to a division by zero error when the list length is 0.
+    *   **Syntax**: The function header `def calculate_average(numbers)` is missing the mandatory colon (`:`) required by Python.
+    *   **Logic**: The script lacks a guard clause to handle empty list inputs, which results in a `ZeroDivisionError` during the division step when `len(numbers)` is zero.
 
 ---
 
 ## Bug 2 – bug2.js
 
-*   **Intended Behavior**: This JavaScript function is intended to fetch user credentials from an asynchronous data source. It must successfully await the promise resolution before attempting to access and log the object's properties.
-*   **Issue Type**: Asynchronous Programming Logical Error (Missing Await Keyword).
+*   **Intended Behavior**: 
+    The `displayDashboard` function is intended to manage asynchronous data retrieval from a promise-based source. It must use the `await` keyword to pause execution until the `fetchUserData` promise is fully resolved. This ensures the resulting user object is available so that properties like `name` and `role` can be accessed and logged without returning undefined.
+
+*   **Issue Type**: 
+    Asynchronous Flow Control Error (Missing Await).
+
 *   **Notes**: 
-    *   The `fetchUserData` call is made without the `await` keyword inside an `async` function.
-    *   This causes the script to treat the variable as a Promise object rather than the resolved data, resulting in `undefined` values during logging.
+    *   **Specific Issue**: The `await` keyword was omitted during the call to `fetchUserData()`, causing the code to proceed with a pending Promise object.
+    *   **Consequence**: Since the logging happens before resolution, the script attempts to read properties from the Promise itself, leading to `undefined` outputs.
 
 ---
 
 ## Bug 3 – bug3.cpp
 
-*   **Intended Behavior**: The C++ program should safely allocate memory for an array of size `n`, populate it with integers, and print elements specifically from index 0 to index `n-1` to remain within allocated memory bounds.
-*   **Issue Type**: Memory Access Violation and Runtime Runtime Exception (Out of Bounds).
+*   **Intended Behavior**: 
+    This program is designed to allocate and manage heap memory for an integer array of size `n`. The intended logic is to iterate through the array using a strictly less-than boundary (`i < n`) to access indices 0 through `n-1`. Finally, the program must release the allocated memory using `delete[]` to prevent memory leaks and ensure system stability.
+
+*   **Issue Type**: 
+    Off-by-one Error and Illegal Memory Access (Segmentation Fault).
+
 *   **Notes**: 
-    *   The loop condition `i <= n` incorrectly allows the iteration to reach the index equal to the array size.
-    *   In a zero-indexed system, this causes an "off-by-one" error, attempting to access unallocated memory which leads to a segmentation fault.
+    *   **Specific Issue**: The loop condition `i <= n` in the `main` function incorrectly allows the iteration to reach index 5 in a 5-element array.
+    *   **Result**: Accessing index `ptr[5]` is an out-of-bounds operation in C++, which triggers a segmentation fault or undefined runtime behavior.
 
 ---
 
 ## Bug 4 – bug4.py
 
-*   **Intended Behavior**: The function is intended to return the factorial of a number `n`. It should multiply every integer starting from 1 up to and including the value of `n` to provide a mathematically correct result.
-*   **Issue Type**: Logical Loop Error and Off-by-one Boundary Condition.
+*   **Intended Behavior**: 
+    The `factorial` function is intended to return the mathematical product of all positive integers from 1 up to and including the input `n`. It should handle the base cases correctly, such as returning 1 for inputs of 0 or 1, and ensure the iterative loop encompasses the entire range including the terminal value `n`.
+
+*   **Issue Type**: 
+    Logical Boundary Condition Error (Off-by-one in Range).
+
 *   **Notes**: 
-    *   The `range(1, n)` function stops the loop at `n-1`, failing to include the final multiplier.
-    *   For an input of 5, the result is 24 instead of 120; this logic error requires changing the range to `range(1, n + 1)`.
-      
+    *   **Specific Issue**: The function uses `range(1, n)`, which is exclusive of the stop value `n` in Python.
+    *   **Consequence**: For an input of 5, the loop only multiplies $1 \times 2 \times 3 \times 4$, resulting in 24 instead of the correct factorial value of 120. The range should be defined as `range(1, n + 1)`.
