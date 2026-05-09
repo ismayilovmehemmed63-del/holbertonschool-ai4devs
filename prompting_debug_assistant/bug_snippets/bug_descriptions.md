@@ -1,4 +1,73 @@
-## Bug 1 – bug1.py1. Intended BehaviorThe goal of this script is to define a function calculate_average(numbers) that accepts a list of integers or floats. It should calculate the sum of all elements and divide it by the count of elements to return the arithmetic mean. It is also expected to handle empty lists by returning 0 to prevent program crashes.2. Issue TypeSyntax ErrorLogical Risk (Zero Division)3. Detailed NotesSpecific Error: The function definition line def calculate_average(numbers) is missing a trailing colon (:).Consequence: Python cannot compile the script, resulting in an immediate SyntaxError.Logic Flaw: The code performs division by len(numbers) without checking if the length is zero, which would cause a ZeroDivisionError at runtime if the list is empty.
-## Bug 2 – bug2.js1. Intended BehaviorThis JavaScript code is designed to simulate an asynchronous API call using a Promise. The displayDashboard function is intended to wait for the data (name and role) to be retrieved and then log those specific values to the console.2. Issue TypeLogical ErrorAsync/Await Misuse3. Detailed NotesSpecific Error: The line const user = fetchUserData(); is missing the await keyword.Consequence: Because fetchUserData returns a Promise, the user variable is assigned the Promise object itself instead of the resolved data.Outcome: When attempting to access user.name, the output is undefined because the Promise object does not contain these properties.
-## Bug 3 – bug3.cpp1. Intended BehaviorThe program is intended to allocate a dynamic array of size n on the heap, initialize its elements with multiples of 10, print each element, and then properly deallocate the memory using delete[].2. Issue TypeRuntime ExceptionMemory Management Error3. Detailed NotesSpecific Error: The loop condition i <= n in the main function is an off-by-one error.Consequence: For an array of size 5, valid indices are 0 through 4. The loop attempts to access ptr[5].Outcome: This leads to an Out of Bounds memory access, which typically causes a Segmentation Fault or undefined behavior during execution.
-## Bug 4 – bug4.py1. Intended BehaviorThe script's purpose is to calculate the factorial of a given integer n using an iterative loop. For n = 5, it should perform the calculation $1 \times 2 \times 3 \times 4 \times 5$ to return the correct result of 120.2. Issue TypeLogical ErrorOff-by-one Error3. Detailed NotesSpecific Error: The loop uses range(1, n), which excludes the upper bound.Consequence: The loop stops at n-1. For input 5, it only multiplies numbers up to 4.Outcome: The function returns 24 instead of the intended 120. To fix this, the range must be defined as range(1, n + 1).
+Başa düşdüm, başlıqların önündəki `##` işarələrini sildim və strukturu sistemin tələb etdiyi tam dəqiqliklə yenidən hazırladım.
+
+Bu variantı kopyalayaraq istifadə edə bilərsən:
+
+---
+
+Bug 1 – bug1.py
+
+* **Intended Behavior**:
+The function `calculate_average(numbers)` should accept a list of numbers, sum them correctly, and return the arithmetic mean. It should also include a check to handle empty lists by returning 0 to avoid division by zero.
+* **Issue Type**:
+* Syntax Error
+* Logical Error (ZeroDivisionError)
+
+
+* **Notes**:
+* **Specific Error**: The function definition `def calculate_average(numbers)` is missing a colon (`:`) at the end.
+* **Consequence**: This causes a `SyntaxError`, and the Python script fails to compile or run.
+* **Logic Flaw**: There is no validation to check if the list is empty before dividing by its length, which would cause a crash at runtime.
+
+
+
+---
+
+Bug 2 – bug2.js
+
+* **Intended Behavior**:
+This script is intended to fetch user data asynchronously. The `displayDashboard` function should use `await` to pause execution until the `fetchUserData` promise resolves, ensuring the user's name and role are correctly logged.
+* **Issue Type**:
+* Logical Error
+* Async/Await Mismanagement
+
+
+* **Notes**:
+* **Specific Error**: The `await` keyword is missing when calling `fetchUserData()`.
+* **Consequence**: The `user` variable is assigned a `Promise` object instead of the actual data object.
+* **Outcome**: The console logs `undefined` for `user.name` and `user.role` because these properties do not exist on a pending Promise object.
+
+
+
+---
+
+Bug 3 – bug3.cpp
+
+* **Intended Behavior**:
+The program should allocate a dynamic integer array of size `n`, fill it with values, and iterate from index `0` to `n-1` to print them. Finally, it must free the allocated memory to ensure no leaks.
+* **Issue Type**:
+* Runtime Exception
+* Out-of-Bounds Memory Access
+
+
+* **Notes**:
+* **Specific Error**: The loop condition `i <= n` is an off-by-one error.
+* **Consequence**: In C++, an array of size 5 only has valid indices from 0 to 4. The loop attempts to access `ptr[5]`.
+* **Outcome**: Accessing memory outside the allocated block leads to a segmentation fault or unpredictable runtime crashes.
+
+
+
+---
+
+Bug 4 – bug4.py
+
+* **Intended Behavior**:
+The script should calculate the factorial of a number `n` by multiplying all integers from 1 up to and including `n`. For input 5, the expected output is 120.
+* **Issue Type**:
+* Logical Error
+* Off-by-one Error (Range Limit)
+
+
+* **Notes**:
+* **Specific Error**: The `for` loop uses `range(1, n)`.
+* **Consequence**: Python's `range(start, stop)` function is exclusive of the `stop` value, meaning the loop ends at `n-1`.
+* **Outcome**: The calculation excludes the multiplier `n` itself. For example, `factorial(5)` returns 24 instead of 120. This is fixed by using `range(1, n + 1)`.
