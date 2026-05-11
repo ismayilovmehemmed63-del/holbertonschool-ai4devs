@@ -1,0 +1,19 @@
+graph TD
+  A[Mobile/Web Client] --> B[API Gateway]
+  B --> C[Auth Service]
+  B --> D[Ride Matching Service]
+  B --> E[Payment Service]
+  B --> F[GPS Tracking Service]
+  B --> G[Notification Service]
+  B --> H[Rating Service]
+  B --> I[Chat Service]
+  C --> J[(Auth DB)]
+  D --> K[(Ride DB)]
+  E --> L[(Payment DB)]
+  F --> M[(Location DB)]
+  H --> N[(Rating DB)]
+  I --> O[(Chat DB)]
+  D --> P[Message Broker]
+  E --> P
+  G --> P
+  F --> P
