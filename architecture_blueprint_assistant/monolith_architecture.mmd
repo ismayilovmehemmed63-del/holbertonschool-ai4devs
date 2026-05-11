@@ -1,0 +1,12 @@
+graph TD
+  A[Mobile/Web Frontend] --> B[Backend Monolith]
+  B --> C[Authentication Module]
+  B --> D[Ride Matching Module]
+  B --> E[Payments Module]
+  B --> F[GPS Tracking Module]
+  B --> G[Notification Service]
+  B --> H[Rating and Review Module]
+  B --> I[Chat Module]
+  B --> J[Central Database]
+  J --> K[(PostgreSQL)]
+  J --> L[(Redis Cache)]
