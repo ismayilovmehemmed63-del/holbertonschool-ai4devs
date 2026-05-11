@@ -16,10 +16,10 @@ secure payments, and safety features for daily commuters and students.
 - Eco-impact dashboard showing CO2 savings
 - In-app chat between drivers and passengers
 
-## Users
-- **Drivers**: Want to fill empty seats and share fuel costs during daily commutes
-- **Passengers**: Want affordable, reliable, and safe rides to work or university
-- **Administrators**: Oversee platform activity, manage users, and ensure safety compliance
+## User Types
+- **Drivers**: Regular commuters who own a car and want to fill empty seats, reduce fuel costs, and share the burden of daily travel expenses.
+- **Passengers**: Individuals seeking affordable and reliable rides to work, university, or other destinations without owning a vehicle.
+- **Administrators**: Platform operators who manage user accounts, monitor ride activity, handle disputes, and ensure safety and policy compliance.
 
 ## Constraints
 - Scale to 50,000 concurrent users during peak hours
