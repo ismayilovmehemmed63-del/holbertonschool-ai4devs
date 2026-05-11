@@ -31,36 +31,6 @@ As a passenger, I want to pay for my ride in-app so that I do not need to carry 
 ---
 
 ### User Story 4
-As a driver, I want to see optimized routes so that I can pick up passengers efficiently.
-**Acceptance Criteria**:
-- System suggests the most efficient route including all passenger stops.
-- Route updates in real time if traffic conditions change.
-- Driver can accept or decline suggested route changes.
-**Priority**: High
-
----
-
-### User Story 5
-As a passenger, I want to rate my driver after the trip so that I can help maintain platform quality.
-**Acceptance Criteria**:
-- Rating prompt appears automatically after ride completion.
-- User can give 1–5 stars and an optional comment.
-- Driver's average rating is updated immediately.
-**Priority**: High
-
----
-
-### User Story 6
-As a driver, I want to rate my passengers so that I can avoid problematic riders in the future.
-**Acceptance Criteria**:
-- Driver can rate passenger after each completed ride.
-- Low-rated passengers are flagged for review by admins.
-- Ratings are visible to other drivers.
-**Priority**: High
-
----
-
-### User Story 7
 As a user, I want to verify my identity so that other users feel safe riding with me.
 **Acceptance Criteria**:
 - User uploads a government-issued ID during registration.
@@ -70,7 +40,7 @@ As a user, I want to verify my identity so that other users feel safe riding wit
 
 ---
 
-### User Story 8
+### User Story 5
 As a passenger, I want to track my driver in real time so that I know when to be ready.
 **Acceptance Criteria**:
 - Passenger sees driver location on a live map after booking.
@@ -80,27 +50,17 @@ As a passenger, I want to track my driver in real time so that I know when to be
 
 ---
 
-### User Story 9
-As a user, I want to see my eco-impact so that I feel motivated to keep carpooling.
+### User Story 6
+As a passenger, I want to rate my driver after the trip so that I can help maintain platform quality.
 **Acceptance Criteria**:
-- Dashboard shows total CO2 saved compared to solo driving.
-- Stats update after every completed ride.
-- User can share their eco-impact on social media.
-**Priority**: Medium
+- Rating prompt appears automatically after ride completion.
+- User can give 1–5 stars and an optional comment.
+- Driver's average rating is updated immediately.
+**Priority**: High
 
 ---
 
-### User Story 10
-As a passenger, I want to chat with my driver in-app so that I can coordinate pickup details.
-**Acceptance Criteria**:
-- Chat is available after a ride is confirmed.
-- Messages are delivered in real time.
-- Chat history is accessible for 24 hours after ride completion.
-**Priority**: Medium
-
----
-
-### User Story 11
+### User Story 7
 As an administrator, I want to monitor all rides so that I can ensure platform safety.
 **Acceptance Criteria**:
 - Admin dashboard shows all active and completed rides.
@@ -110,7 +70,7 @@ As an administrator, I want to monitor all rides so that I can ensure platform s
 
 ---
 
-### User Story 12
+### User Story 8
 As a user, I want to add emergency contacts so that someone is notified if I am in danger.
 **Acceptance Criteria**:
 - User can add up to 3 emergency contacts in profile settings.
