@@ -8,3 +8,5 @@
 - **Story 6:** As a student, I want to see a countdown to my exams so that I can stay motivated and focused.
 - **Story 7:** As a student, I want to edit my available study hours so that the plan adapts to my busy schedule.
 - **Story 8:** As a student, I want a focus mode timer so that I can study without digital distractions.
+- **Story 9:** As a student, I want to view a weekly progress report so that I can identify areas for improvement.
+- **Story 10:** As a student, I want to receive push notifications for upcoming tasks so that I stay on schedule.
