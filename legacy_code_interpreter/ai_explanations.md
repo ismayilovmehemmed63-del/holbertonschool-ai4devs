@@ -2,10 +2,10 @@
 
 ---
 
-## Section 1 – authenticate_user()
+## Section 1 - authenticate_user()
 
 ### Plain English
-This function checks if a user's login credentials are valid by comparing the entered password hashed with MD5 against the stored hash in the database. It builds the SQL query by directly concatenating user input into the query string, then returns true or false based on whether a matching record is found.
+This function checks if a user login credentials are valid by comparing the entered password hashed with MD5 against the stored hash in the database. It builds the SQL query by directly concatenating user input into the query string.
 
 ### Pattern
 Procedural style with nested if-else blocks and direct database calls mixed with authentication logic. No separation between data access and business logic layers.
@@ -24,10 +24,10 @@ Procedural style with nested if-else blocks and direct database calls mixed with
 
 ---
 
-## Section 2 – generate_report()
+## Section 2 - generate_report()
 
 ### Plain English
-This function fetches all student records from the database, loops through each record, performs grade calculations, and builds an HTML string by concatenating raw data directly into the output. The final HTML is then printed to the browser without any escaping or templating.
+This function fetches all student records from the database, loops through each record, performs grade calculations, and builds an HTML string by concatenating raw data directly into the output. The final HTML is printed to the browser without any escaping.
 
 ### Pattern
 A single 280-line function mixing data retrieval, business logic, and presentation in one place with no separation of concerns. Violates the Single Responsibility Principle entirely.
@@ -46,7 +46,7 @@ A single 280-line function mixing data retrieval, business logic, and presentati
 
 ---
 
-## Section 3 – save_student_data()
+## Section 3 - save_student_data()
 
 ### Plain English
 This function takes student form data submitted from a web page and inserts it directly into the database without any validation or sanitization. Sensitive student information is stored in plain text with no encryption applied at any stage.
@@ -68,7 +68,7 @@ Direct pass-through of raw user input to the database with no intermediate valid
 
 ---
 
-## Section 4 – session_manager()
+## Section 4 - session_manager()
 
 ### Plain English
 This function creates and manages user sessions by storing the user ID and role in a PHP session variable after login. It checks session validity on each page load by comparing stored session data against a hardcoded timeout value defined directly in the source code.
@@ -91,10 +91,10 @@ Completely custom session management built from scratch without using any establ
 
 ---
 
-## Section 5 – calculate_grades()
+## Section 5 - calculate_grades()
 
 ### Plain English
-This function takes a student's raw scores for multiple subjects and calculates their final grade using a series of deeply nested if-else conditions. Each condition manually checks specific score ranges and assigns a corresponding letter grade for every subject individually. The same grading logic is duplicated separately for each subject rather than being shared through any reusable component.
+This function takes a student raw scores for multiple subjects and calculates their final grade using a series of deeply nested if-else conditions. Each condition manually checks specific score ranges and assigns a corresponding letter grade for every subject individually. The same grading logic is duplicated separately for each subject rather than being shared through any reusable component.
 
 ### Pattern
 Long chain of deeply nested if-else blocks with identical grading logic duplicated independently for each subject, totaling over 150 lines. Violates the DRY principle and the Open-Closed Principle throughout.
