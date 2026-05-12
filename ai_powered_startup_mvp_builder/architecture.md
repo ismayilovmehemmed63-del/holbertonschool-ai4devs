@@ -1,16 +1,25 @@
 # System Architecture
 
-## Overview
-The AI Study Planner is a full-stack web application built with a modern decoupled architecture.
+## High-Level Diagram
+```mermaid
+graph TD
+    User((User)) -->|Interacts| Frontend[React + Tailwind]
+    Frontend -->|API Requests| Backend[Node.js + Express]
+    Backend -->|Queries| DB[(PostgreSQL/Supabase)]
+    Backend -->|Prompt/Response| AI[OpenAI API]
 
-## Components
-- **Frontend:** React.js with Tailwind CSS (Deployed on Vercel).
-- **Backend:** Node.js/Express API (Deployed on Render).
-- **AI Engine:** Integration with OpenAI API for schedule generation.
-- **Database:** PostgreSQL (Hosted on Supabase) for storing user tasks and subjects.
+### 2. User Stories Faylını Yenilə (Tam standart format)
+```bash
+cat > user_stories.md << 'EOF'
+# User Stories - AI Study Planner
 
-## Workflow
-1. User interacts with the React frontend.
-2. Frontend sends requests to the Express API.
-3. API fetches/saves data from PostgreSQL and communicates with AI for plan generation.
-4. Data is returned to the user interface.
+- **Story 1:** As a student, I want to enter my exam dates so that the system knows my academic deadlines.
+- **Story 2:** As a student, I want to list my subjects so that I can organize my study materials per course.
+- **Story 3:** As a student, I want the AI to generate a daily study plan so that I can save time on manual planning.
+- **Story 4:** As a student, I want to mark tasks as completed so that I can track my daily progress.
+- **Story 5:** As a student, I want to set subject difficulty levels so that the AI allocates more time to harder topics.
+- **Story 6:** As a student, I want to see a countdown to my exams so that I can stay motivated and focused.
+- **Story 7:** As a student, I want to edit my available study hours so that the plan adapts to my busy schedule.
+- **Story 8:** As a student, I want a focus mode timer so that I can study without digital distractions.
+- **Story 9:** As a student, I want to see a productivity summary so that I can analyze my study habits over time.
+- **Story 10:** As a student, I want to receive daily notifications so that I never miss a scheduled study session.
