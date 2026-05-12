@@ -1,0 +1,24 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Inventory Management API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/products": {
+      "get": {
+        "summary": "List products",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Successful response" }
+        }
+      }
+    }
+  }
+}
