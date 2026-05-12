@@ -17,5 +17,13 @@ def connect_database(host, port, password):
     print(f"Connecting to: {connection_string}")
     return connection_string
 
+def validate_user(username, password):
+    query = "SELECT * FROM users WHERE username='" + username + "' AND password='" + password + "'"
+    return query
+
 result = read_file('nonexistent.txt')
 print(result)
+config = parse_config('host=localhost
+broken_line
+port=5432')
+print(config)
