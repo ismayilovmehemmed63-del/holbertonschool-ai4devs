@@ -5,15 +5,15 @@
 | Field | Detail |
 |-------|--------|
 | File Reviewed | `auth.py` |
-| Feature | User Authentication (register, login, logout, session management) |
+| Feature | User Authentication |
 | AI Tools Used | Claude (Anthropic), GitHub Copilot |
 | Review Date | 2026-05-13 |
-| Reviewer Personas | Security, Performance, Maintainability |
-| Total Inline Comments | 13 |
-| Total Global Suggestions | 9 |
-| Security Audit Performed | Yes |
-| Logging Audit Performed | Yes |
-| Thread Safety Audit Performed | Yes |
+| Personas Applied | Security, Performance, Maintainability |
+| Inline Comments | 10 |
+| Global Suggestions | 9 |
+| Security Audit | Yes |
+| Logging Audit | Yes |
+| Thread Safety Audit | Yes |
 
 ---
 
@@ -21,101 +21,130 @@
 
 ### Persona: Security
 
-- **(line 12) hash_password() - Hardcoded iteration count:**
-  The PBKDF2 iteration count `100000` is hardcoded directly in the function body, making future security upgrades require editing the function itself. Extract it as a module-level constant `PBKDF2_ITERATIONS = 100_000` so it can be updated in one place without touching function logic.
+**Comment 1 — (line 12) `hash_password()`: Hardcoded iteration count**
+- **Issue:** The PBKDF2 iteration count `100000` is hardcoded in the function body, making it invisible to security reviewers and hard to update without risking accidental breakage.
+- **Recommendation:** Define `PBKDF2_ITERATIONS = 100_000` as a module-level constant. This allows a one-line upgrade when OWASP raises the recommended minimum, without modifying function logic.
+- **Example:** `key = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), PBKDF2_ITERATIONS)`
 
-- **(line 22) verify_password() - Timing-safe comparison:**
-  The function correctly uses `hmac.compare_digest()` to prevent timing-based attacks on password comparison. Add an inline comment `# Never replace with ==: prevents timing oracle attacks` so future maintainers do not accidentally introduce a vulnerability.
+**Comment 2 — (line 22) `verify_password()`: Missing explanation for timing-safe comparison**
+- **Issue:** `hmac.compare_digest()` is correctly used, but no comment explains why `==` must never replace it. Future maintainers may unknowingly introduce a timing oracle vulnerability.
+- **Recommendation:** Add an inline comment: `# Use compare_digest, not ==, to prevent timing-based password oracle attacks`. This makes the security intent explicit and self-documenting.
+- **Example:** `return hmac.compare_digest(key.hex(), hashed)  # Never replace with ==`
 
-- **(line 78) create_session() - Non-standard token generation API:**
-  The session token uses `os.urandom(32).hex()` which is cryptographically secure but not the stdlib-recommended API. Replace with `secrets.token_hex(32)`, the standard since Python 3.6, which signals security intent clearly to code auditors.
+**Comment 3 — (line 78) `create_session()`: Non-standard token generation**
+- **Issue:** `os.urandom(32).hex()` is cryptographically secure but not the stdlib-recommended API for generating security tokens, which may confuse security auditors.
+- **Recommendation:** Replace with `secrets.token_hex(32)`, the standard Python API for cryptographic tokens since Python 3.6. It communicates intent clearly and is recognized by security scanning tools.
+- **Example:** `token = secrets.token_hex(32)  # Cryptographically secure session token`
 
-- **(line 110) register() - Weak email validation:**
-  Email validation only checks for the presence of `@`, accepting invalid addresses like `a@` or `@b.com`. Apply `re.match(r'^[^@]+@[^@]+\.[^@]+$', email)` at minimum, or use the `email-validator` package for full RFC 5322 compliance.
+**Comment 4 — (line 110) `register()`: Weak email validation**
+- **Issue:** `'@' not in email` accepts malformed addresses like `a@`, `@b`, and `@@`, allowing invalid emails into the system and breaking downstream flows like password reset.
+- **Recommendation:** Replace with `re.match(r'^[^@]+@[^@]+\.[^@]+$', email)` at minimum. For production use, apply the `email-validator` PyPI package for full RFC 5322 compliance.
+- **Example:** `if not re.match(r'^[^@]+@[^@]+\.[^@]+$', email): return {'success': False, 'error': 'Invalid email'}`
 
-- **(line 118) register() - Insufficient password policy:**
-  The password check only enforces a minimum length of 8 characters, which is insufficient for a secure authentication system. Require at least one uppercase letter, one digit, and one special character using `re.search()` patterns, and document the full policy in the method docstring.
+**Comment 5 — (line 130) `login()`: No brute-force protection**
+- **Issue:** The method allows unlimited consecutive password attempts with no lockout, delay, or alerting, making the system fully vulnerable to dictionary and brute-force attacks.
+- **Recommendation:** Add `_failed_attempts: dict[str, int]` and `_lockout_until: dict[str, float]` to `AuthService`. Lock accounts for 300 seconds after 5 failures and emit `logger.warning('LOGIN_FAIL', extra={'username': username})` on each failure.
+- **Example:** `if self._failed_attempts.get(username, 0) >= 5: return {'success': False, 'error': 'Account locked'}`
 
-- **(line 130) login() - No brute-force protection:**
-  The login method allows unlimited consecutive password attempts with no lockout or delay. Add a `_failed_attempts: dict[str, int]` counter and a `_lockout_until: dict[str, float]` timestamp, locking the account for 300 seconds after 5 consecutive failures and emitting `logger.warning()` on each failure.
-
-- **(line 145) get_current_user() - Sensitive data leakage:**
-  This method returns the raw user dictionary including `salt` and `hashed` password fields to all callers, violating the principle of least privilege. Add a `_sanitize_user(user: dict) -> dict` private method returning only `username`, `email`, `created_at`, and `is_active`, and apply it to every method that returns user data.
+**Comment 6 — (line 145) `get_current_user()`: Sensitive field exposure**
+- **Issue:** Returns the raw user dict containing `salt` and `hashed` password to all callers, violating the principle of least privilege and risking credential exposure in API responses or logs.
+- **Recommendation:** Add `_sanitize_user(user: dict) -> dict` that returns only `username`, `email`, `created_at`, `is_active`. Apply it in every method that returns user data.
+- **Example:** `def _sanitize_user(self, user): return {k: user[k] for k in ('username', 'email', 'created_at', 'is_active')}`
 
 ### Persona: Performance
 
-- **(line 67) SESSION_TTL - Magic number without explanation:**
-  The session expiry value `3600` appears with no comment explaining the business rule it encodes. Define `SESSION_TTL_SECONDS = 3600  # Sessions expire after 1 hour` as a named constant and consider reading it from `os.getenv('SESSION_TTL', 3600)` for environment-specific configuration.
+**Comment 7 — (line 88) `validate_session()`: Lazy expiry causes memory growth**
+- **Issue:** Expired sessions are removed only when individually accessed. In a long-running server, stale sessions accumulate indefinitely, causing unbounded memory growth.
+- **Recommendation:** Add `cleanup_expired_sessions()` that iterates `_sessions` and removes all expired entries in a single pass. Call it every 100 logins via an internal `_login_count` counter.
+- **Example:** `def cleanup_expired_sessions(self): self._sessions = {k: v for k, v in self._sessions.items() if time.time() < v['expires_at']}`
 
-- **(line 88) validate_session() - Lazy expiry causes memory growth:**
-  Expired sessions are only removed when individually accessed, causing stale entries to accumulate indefinitely in `_sessions` on a long-running server. Add a `cleanup_expired_sessions()` method that removes all expired entries in a single pass, and call it every 100 logins via an internal `_login_count` counter.
-
-- **(line 35) UserStore._users - Missing secondary email index:**
-  User lookup by username is O(1), but email-based lookups required for password-reset and account-recovery flows need an O(n) linear scan. Maintain a parallel `_emails: dict[str, str]` mapping email to username so email lookups are also O(1).
+**Comment 8 — (line 35) `UserStore._users`: No secondary email index**
+- **Issue:** User lookup is by username only (O(1)), but email-based lookups for password reset require an O(n) linear scan of all users, which degrades with scale.
+- **Recommendation:** Maintain a parallel `_emails: dict[str, str]` mapping `email → username`. Update it in `add_user()` and use it for O(1) email lookups.
+- **Example:** `def get_user_by_email(self, email): return self._users.get(self._emails.get(email))`
 
 ### Persona: Maintainability
 
-- **(line 35) UserStore - No persistence warning in docstring:**
-  The class stores all user data in memory with no indication that this data is lost on process restart, which would surprise production users. Add a class-level docstring warning: `In-memory store only. All data is lost on restart. Replace with a database-backed repository before deploying to production.`
+**Comment 9 — (line 95) `AuthService.__init__()`: Hard-coded dependencies**
+- **Issue:** `UserStore` and `SessionManager` are instantiated unconditionally inside `__init__`, making it impossible to inject test doubles and forcing integration-style tests instead of fast unit tests.
+- **Recommendation:** Change to `def __init__(self, user_store=None, session_manager=None)` and instantiate defaults only when `None` is passed. This enables full dependency injection without breaking existing usage.
+- **Example:** `self.users = user_store if user_store is not None else UserStore()`
 
-- **(line 95) AuthService.__init__() - Hard-coded dependencies block testing:**
-  `UserStore` and `SessionManager` are instantiated unconditionally inside `__init__`, making it impossible to inject test doubles during unit testing. Change the signature to `def __init__(self, user_store=None, session_manager=None)` and instantiate defaults only when `None` is passed.
-
-- **(line 48) add_user() - No email uniqueness enforcement:**
-  Two users can register with the same email address because no uniqueness constraint exists in `UserStore`, breaking any future password-reset or email-verification flow. Add an email uniqueness check in both `UserStore.add_user()` and `AuthService.register()`, returning a clear error when a duplicate is detected.
+**Comment 10 — (line 48) `add_user()`: No email uniqueness enforcement**
+- **Issue:** Two users can register with identical email addresses because no uniqueness constraint exists in `UserStore`, silently breaking password-reset and account-recovery flows.
+- **Recommendation:** Add a `_emails: set` to `UserStore` and check it in `add_user()`. Also validate in `AuthService.register()` and return `{'success': False, 'error': 'Email already registered'}`.
+- **Example:** `if email in self._emails: raise ValueError('Email already registered')`
 
 ---
 
 ## Global Feedback
 
-### Persona: Security — Audit Findings
+### Persona: Security
 
-- **AUDIT: No authentication event logging exists anywhere in the module.**
-  Every security-sensitive event — successful login, failed login, logout, registration, and account lockout — must be logged to support security auditing, anomaly detection, and incident response. Integrate Python `logging` and emit `logger.info()` for successful events and `logger.warning()` for failures; never include passwords, salts, or tokens in log entries.
+**Global 1 — Authentication event logging is completely absent**
+- **Issue:** No login, logout, registration, or failure events are logged anywhere in the module, making security auditing, anomaly detection, and incident response impossible.
+- **Recommendation:** Add `import logging` and a module-level `logger = logging.getLogger(__name__)`. Emit `logger.info()` for successes and `logger.warning()` for failures. Never log passwords, salts, or tokens.
+- **Example:** `logger.warning('LOGIN_FAIL', extra={'username': username, 'reason': 'bad_password'})`
 
-- **AUDIT: No rate limiting on login or registration endpoints.**
-  Both `login()` and `register()` are completely unthrottled, allowing an attacker to perform brute-force or credential-stuffing attacks and mass account creation without restriction. Implement per-username failed-attempt tracking with exponential backoff for login, and per-IP request counting for registration.
+**Global 2 — No rate limiting on login or registration**
+- **Issue:** Both endpoints are fully unthrottled, allowing automated credential-stuffing, brute-force attacks, and mass fake-account creation without any restriction or alerting.
+- **Recommendation:** Track failed attempts per username for login with exponential backoff (5 failures → 5-min lock). Track registrations per IP or email domain per hour with a configurable limit.
+- **Example:** `if attempts >= MAX_ATTEMPTS: return {'success': False, 'error': f'Locked for {LOCKOUT_SECONDS}s'}`
 
-- **AUDIT: Account lockout policy is entirely absent.**
-  The system applies no consequence to repeated authentication failures, leaving accounts vulnerable to dictionary attacks indefinitely. Implement a tiered lockout policy: 5 failures triggers a 5-minute lock, 10 failures triggers a 1-hour lock, and 20 failures triggers a permanent lock requiring administrator intervention.
+**Global 3 — Account lockout policy is undefined**
+- **Issue:** The system applies no consequence to repeated authentication failures, leaving all accounts permanently vulnerable to offline and online password attacks.
+- **Recommendation:** Implement tiered lockout: 5 failures → 5-minute lock, 10 failures → 1-hour lock, 20 failures → permanent lock requiring admin reset via a dedicated `unlock_account(username)` method.
+- **Example:** `LOCKOUT_TIERS = [(5, 300), (10, 3600), (20, float('inf'))]`
 
-- **AUDIT: Sensitive credential fields are exposed in return values.**
-  `get_current_user()` returns `salt` and `hashed` password fields to all callers, violating the principle of least privilege and risking unintentional credential exposure in logs or API responses. Implement and consistently apply `_sanitize_user()` to strip all internal credential fields before returning user data.
+### Persona: Performance
 
-### Persona: Performance — Audit Findings
+**Global 4 — Session memory is unbounded**
+- **Issue:** `SessionManager._sessions` grows indefinitely because expired entries are only lazily removed. A server running for weeks with active users will accumulate thousands of stale entries.
+- **Recommendation:** Add `cleanup_expired_sessions()` and call it every 100 session creations. Alternatively replace `_sessions` with `cachetools.TTLCache(maxsize=10000, ttl=SESSION_TTL_SECONDS)` for automatic eviction.
+- **Example:** `from cachetools import TTLCache; self._sessions = TTLCache(maxsize=10000, ttl=3600)`
 
-- **AUDIT: Session store has no memory bound and will grow indefinitely.**
-  The `SessionManager._sessions` dictionary is never proactively cleaned, meaning expired sessions accumulate in memory for the entire lifetime of the process. Add `cleanup_expired_sessions()` triggered every 100 logins, or replace `_sessions` with `cachetools.TTLCache` which handles expiry automatically.
+**Global 5 — Thread safety is not guaranteed**
+- **Issue:** Both `UserStore._users` and `SessionManager._sessions` are plain dicts. Concurrent writes from multiple threads in any WSGI or ASGI server cause race conditions and silent data corruption.
+- **Recommendation:** Add `self._lock = threading.Lock()` to both classes. Wrap all dict mutations (`add_user`, `create_session`, `delete_session`) in `with self._lock:` blocks.
+- **Example:** `with self._lock: self._users[username] = {...}`
 
-- **AUDIT: No thread safety guarantees on shared mutable state.**
-  `UserStore._users` and `SessionManager._sessions` are plain dicts accessed from multiple threads in any concurrent web server, creating race conditions on reads and writes. Add `_lock = threading.Lock()` to both classes and wrap all mutation operations in `with self._lock:` context blocks.
+### Persona: Maintainability
 
-### Persona: Maintainability — Audit Findings
+**Global 6 — Single Responsibility Principle is violated**
+- **Issue:** `AuthService` combines input validation, authentication business logic, and direct data access in one class, making each concern harder to test, extend, or swap independently.
+- **Recommendation:** Extract `UserRepository` for all CRUD operations on user data. Define `BaseUserRepository` as an abstract interface. `AuthService` should depend on the interface, enabling swappable backends (SQLite, PostgreSQL, Redis).
+- **Example:** `class AuthService: def __init__(self, repo: BaseUserRepository, sessions: SessionManager): ...`
 
-- **AUDIT: AuthService violates Single Responsibility Principle.**
-  The class combines input validation, authentication business logic, and direct data access in one place, making each concern harder to test, extend, or replace independently. Extract a `UserRepository` class responsible solely for CRUD operations, and have `AuthService` depend on an abstract `BaseUserRepository` interface.
+**Global 7 — Structured logging is absent**
+- **Issue:** Without structured log fields, diagnosing failures or integrating with log aggregation platforms like ELK Stack, Splunk, or Datadog is impossible in production.
+- **Recommendation:** Use `logger.info('event', extra={'username': u, 'event': 'LOGIN_SUCCESS'})` format throughout. Define a `log_auth_event(event, username, **kwargs)` helper to standardize all auth log entries.
+- **Example:** `def log_auth_event(event, username): logger.info(event, extra={'username': username, 'ts': time.time()})`
 
-- **AUDIT: Structured logging is completely absent from the module.**
-  Without structured log entries, diagnosing authentication failures, tracking suspicious activity, or integrating with log aggregation platforms like ELK Stack or Datadog is impossible. Add `logger.info()` and `logger.warning()` calls at every auth decision point with structured `extra` fields such as `{"username": username, "event": "LOGIN_FAIL"}`.
+**Global 8 — Return type contracts are undocumented**
+- **Issue:** All methods return plain `dict` objects with no documented schema, making it unclear what fields callers can rely on and preventing static type checkers from catching field-access errors.
+- **Recommendation:** Define `AuthResult = TypedDict('AuthResult', {'success': bool, 'error': str, 'token': str, 'message': str}, total=False)` and `UserRecord = TypedDict(...)` for user data. Annotate all return types.
+- **Example:** `def login(self, username: str, password: str) -> AuthResult:`
 
-- **AUDIT: Return type contracts are undocumented and inconsistent.**
-  Methods return plain `dict` objects with no documented schema, making it unclear to callers what fields to expect and preventing static type checkers from catching errors. Define `UserRecord(TypedDict)` and `AuthResult(TypedDict)` to make all return types explicit, self-documenting, and verifiable at development time.
+**Global 9 — No configuration management**
+- **Issue:** `SESSION_TTL`, `PBKDF2_ITERATIONS`, and password length minimums are scattered as magic numbers, making environment-specific tuning impossible without code changes.
+- **Recommendation:** Consolidate into an `AuthConfig` dataclass with `os.getenv()` overrides. Pass it to `AuthService.__init__()` so all tuneable parameters are visible in one place.
+- **Example:** `@dataclass class AuthConfig: session_ttl: int = int(os.getenv('SESSION_TTL', 3600))`
 
 ---
 
 ## Security Audit Summary
 
-| Audit Item | Status | Severity |
-|------------|--------|----------|
-| Password hashing with salt | ✅ Pass | — |
-| Timing-safe comparison | ✅ Pass | — |
-| Brute-force protection | ❌ Fail | High |
-| Account lockout policy | ❌ Fail | High |
-| Rate limiting on login | ❌ Fail | High |
-| Rate limiting on register | ❌ Fail | Medium |
-| Sensitive data sanitization | ❌ Fail | High |
-| Authentication event logging | ❌ Fail | High |
-| Email validation strength | ⚠️ Weak | Medium |
-| Password policy strength | ⚠️ Weak | Medium |
-| Thread safety | ❌ Fail | High |
-| Session memory management | ❌ Fail | Medium |
+| Audit Item | Status | Severity | Fix Required |
+|------------|--------|----------|--------------|
+| Password hashing with salt | ✅ Pass | — | No |
+| Timing-safe comparison | ✅ Pass | — | No |
+| Brute-force protection | ❌ Fail | High | Yes |
+| Account lockout policy | ❌ Fail | High | Yes |
+| Rate limiting on login | ❌ Fail | High | Yes |
+| Rate limiting on register | ❌ Fail | Medium | Yes |
+| Sensitive data sanitization | ❌ Fail | High | Yes |
+| Authentication event logging | ❌ Fail | High | Yes |
+| Email validation | ⚠️ Weak | Medium | Yes |
+| Password policy | ⚠️ Weak | Medium | Yes |
+| Thread safety | ❌ Fail | High | Yes |
+| Session memory management | ❌ Fail | Medium | Yes |
