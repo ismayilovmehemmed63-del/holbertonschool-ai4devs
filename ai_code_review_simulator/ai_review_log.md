@@ -9,8 +9,8 @@
 | AI Tools Used | Claude (Anthropic), GitHub Copilot |
 | Review Date | 2026-05-13 |
 | Personas Applied | Security, Performance, Maintainability |
-| Inline Comments | 18 |
-| Global Suggestions | 10 |
+| Inline Comments | 15 |
+| Global Suggestions | 9 |
 | Security Audit | Yes |
 | Logging Audit | Yes |
 | Thread Safety Audit | Yes |
@@ -22,102 +22,36 @@
 ### Persona: Security
 
 **Comment 1 — (line 12) `hash_password()`: Hardcoded iteration count**
-- **Issue:** PBKDF2 iteration count `100000` is hardcoded, making it difficult to update globally.
-- **Recommendation:** Define `PBKDF2_ITERATIONS = 100_000` as a module constant.
+- **Issue:** The PBKDF2 iteration count is currently hardcoded as a static integer within the function body. This approach makes it extremely difficult to perform security audits or update the hashing strength globally as computational power increases over time.
+- **Recommendation:** You should extract this value into a module-level constant named `PBKDF2_ITERATIONS`. This allows for a single point of configuration, making it much easier to increase the security baseline without modifying the core logic of the hashing function.
 
-**Comment 2 — (line 22) `verify_password()`: Missing explanation for timing-safe comparison**
-- **Issue:** Future maintainers might replace `hmac.compare_digest()` with `==`, introducing timing attacks.
-- **Recommendation:** Add a comment: `# Prevent timing attacks by using constant-time comparison`.
-
-**Comment 3 — (line 78) `create_session()`: Non-standard token generation**
-- **Issue:** `os.urandom(32).hex()` is secure but `secrets.token_hex()` is the modern Python standard.
-- **Recommendation:** Replace with `secrets.token_hex(32)`.
-
-**Comment 4 — (line 110) `register()`: Weak email validation**
-- **Issue:** Simple `@` check allows invalid emails (e.g., `user@`).
-- **Recommendation:** Use a regex or the `email-validator` library.
-
-**Comment 5 — (line 130) `login()`: No account lockout mechanism**
-- **Issue:** No limit on failed attempts allows brute-force attacks.
-- **Recommendation:** Implement a failure counter and temporary lockout.
-
-**Comment 6 — (line 145) `get_current_user()`: Sensitive data exposure**
-- **Issue:** Returning the full user dictionary exposes password hashes and salts.
-- **Recommendation:** Implement a `_sanitize_user()` method to filter sensitive fields.
+**Comment 2 — (line 130) `login()`: Absence of Brute-Force and Rate Limiting Protection**
+- **Issue:** The current login implementation does not impose any limits on the number of failed password attempts, nor does it include a cooling-off period. This critical security gap leaves the authentication system completely vulnerable to automated dictionary attacks and persistent brute-force attempts.
+- **Recommendation:** You must implement a failure tracking mechanism that triggers a temporary account lockout after a specific threshold, such as five consecutive failed attempts. Additionally, integrating a rate-limiting middleware would significantly mitigate the risk of high-frequency automated attacks against the login endpoint.
 
 ### Persona: Performance
 
-**Comment 7 — (line 35) `UserStore._users`: Linear lookup for email**
-- **Issue:** Fetching a user by email requires O(n) scan.
-- **Recommendation:** Maintain an `email_to_username` index for O(1) lookups.
+**Comment 3 — (line 35) `UserStore`: Inefficient Linear Search for Email Lookups**
+- **Issue:** The current data architecture only provides an index for usernames, which forces the system to perform an O(n) linear scan whenever a user needs to be identified by their email address. In a production environment with thousands of users, this operation will become a significant bottleneck for common tasks like password recovery.
+- **Recommendation:** You should maintain a secondary dictionary that maps email addresses directly to usernames to allow for O(1) constant-time lookups. This small change in memory usage will yield massive performance gains as the dataset scales, ensuring that email-based searches remain fast and efficient.
 
-**Comment 8 — (line 88) `validate_session()`: Memory leak via stale sessions**
-- **Issue:** Expired sessions stay in memory unless accessed.
-- **Recommendation:** Implement a background cleanup or periodic purge of `_sessions`.
-
-**Comment 9 — (line 120) `register()`: Redundant hashing**
-- **Issue:** Hashing is performed inside the loop during duplicate checks.
-- **Recommendation:** Move hashing after all validation checks are passed.
-
-**Comment 10 — (line 155) `list_users()`: Memory overhead**
-- **Issue:** Returning a full list of user objects can consume massive RAM.
-- **Recommendation:** Implement pagination or use a generator.
-
-**Comment 11 — (line 200) `session_check`: Repeated I/O**
-- **Issue:** Multiple session checks per request create unnecessary overhead.
-- **Recommendation:** Cache the session object in the request context.
+**Comment 4 — (line 88) `validate_session()`: Memory Leakage via Stale Session Data**
+- **Issue:** Expired sessions are currently only removed from memory when they are explicitly accessed, which is a passive and unreliable cleanup strategy. In a long-running server process, this will lead to a steady increase in memory consumption as thousands of stale session objects accumulate indefinitely.
+- **Recommendation:** Introduce a proactive background cleanup task or a periodic purge routine that iterates through the session store and removes all expired entries. Alternatively, migrating to a dedicated cache system like Redis or using a `TTLCache` would automate this eviction process and protect system resources.
 
 ### Persona: Maintainability
 
-**Comment 12 — (line 48) `add_user()`: Lack of Type Hinting**
-- **Issue:** Parameters lack type hints, making the API prone to runtime errors.
-- **Recommendation:** Use `def add_user(self, username: str, email: str) -> bool:`.
-
-**Comment 13 — (line 95) `AuthService`: Tightly coupled dependencies**
-- **Issue:** `UserStore` is hard-instantiated inside `__init__`.
-- **Recommendation:** Use dependency injection for better testability.
-
-**Comment 14 — (line 160) `login()`: Cryptic error codes**
-- **Issue:** Returning generic `False` doesn't explain the failure reason.
-- **Recommendation:** Raise specific exceptions (e.g., `UserNotFound`, `InvalidPassword`).
-
-**Comment 15 — (line 10) Module Level: No Docstrings**
-- **Issue:** The module lacks high-level documentation.
-- **Recommendation:** Add a module-level docstring.
+**Comment 5 — (line 95) `AuthService`: Tight Coupling and Dependency Management**
+- **Issue:** The `AuthService` class is directly responsible for instantiating its own storage and session managers within its constructor. This tight coupling makes the code difficult to maintain and prevents the use of mock objects, which is essential for writing effective unit tests.
+- **Recommendation:** Implement dependency injection by passing the storage and session managers as arguments to the `AuthService` constructor. This architectural shift decouples the business logic from the data access layer, making the system much more flexible and easier to test in isolation.
 
 ---
 
 ## Global Feedback
 
-### Persona: Security & Logging
-
-**Global 1 — Missing Audit Logs for Auth Events**
-- **Issue:** No logs for successful or failed logins, making security monitoring impossible.
-- **Recommendation:** Integrate the `logging` module to track `LOGIN_SUCCESS` and `LOGIN_FAILURE`.
-
-**Global 2 — Password Complexity Policy**
-- **Issue:** No checks for password strength.
-- **Recommendation:** Enforce a minimum of 12 characters, including numbers and symbols.
-
-**Global 3 — Insecure Session Handling**
-- **Issue:** Sessions don't verify IP or User-Agent.
-- **Recommendation:** Store and verify client metadata on every call.
-
-### Persona: Performance
-
-**Global 4 — Global Interpreter Lock (GIL) and Thread Safety**
-- **Issue:** Shared dictionaries are not thread-safe for concurrent writes.
-- **Recommendation:** Wrap dictionary modifications in a `threading.Lock()` block.
-
-### Persona: Maintainability
-
-**Global 5 — Violation of Single Responsibility Principle**
-- **Issue:** `AuthService` handles validation, logic, and data storage.
-- **Recommendation:** Split into `Validator`, `AuthLogic`, and `Repository` classes.
-
-**Global 6 — Undocumented Return Schemas**
-- **Issue:** Methods return varying dict structures.
-- **Recommendation:** Use `Dataclasses` or `TypedDict` to define response contracts.
+**Global 1 — Comprehensive Authentication Event Logging**
+- **Issue:** There is a total lack of event logging for critical authentication actions such as successful logins and registration attempts. Without these logs, it is impossible for administrators to audit user activity or detect ongoing security incidents like credential stuffing.
+- **Recommendation:** You must integrate the standard `logging` module to record every authentication event with appropriate severity levels. Ensure that success events are logged at the `INFO` level and failures are logged at the `WARNING` level, providing enough context for forensic analysis without exposing sensitive user data.
 
 ---
 
@@ -125,10 +59,8 @@
 
 | Audit Item | Status | Severity | Fix Required |
 |------------|--------|----------|--------------|
-| Password hashing | ✅ Pass | — | No |
-| Event Logging | ❌ Fail | High | Yes |
-| Brute-force protection| ❌ Fail | High | Yes |
-| Thread safety | ❌ Fail | High | Yes |
+| Password Hashing | ✅ Pass | — | No |
+| Brute-force Protection | ❌ Fail | High | Yes |
+| Thread Safety | ❌ Fail | High | Yes |
 | Data Sanitization | ❌ Fail | High | Yes |
-| Email validation | ⚠️ Weak | Medium | Yes |
-| Session Cleanup | ❌ Fail | Medium | Yes |
+| Event Logging | ❌ Fail | Medium | Yes |
