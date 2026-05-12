@@ -22,7 +22,3 @@ const items = [
 ];
 
 console.log(calculateTotal(items));
-
-const users = [{id: 1, name: "Alice"}, {id: 2, name: "Bob"}];
-console.log(findUser(users, 1));
-console.log(findUser(users, 99));

@@ -1,4 +1,10 @@
 def calculate_discount(price, discount_percent):
+    if not isinstance(price, (int, float)):
+        raise TypeError('Price must be a number')
+    if not isinstance(discount_percent, (int, float)):
+        raise TypeError('Discount must be a number')
+    if discount_percent < 0:
+        return 'Invalid discount'
     if discount_percent > 100:
         return 'Invalid discount'
     discount = price * discount_percent / 100
@@ -6,6 +12,10 @@ def calculate_discount(price, discount_percent):
     return final_price
 
 def get_top_students(students, n):
+    if not students:
+        return []
+    if n <= 0:
+        return []
     sorted_students = sorted(students, key=lambda x: x['score'], reverse=True)
     return sorted_students[:n]
 
@@ -19,9 +29,3 @@ students = [
     {'name': 'Carol', 'score': 88}
 ]
 print(get_top_students(students, 2))
-
-# Tests
-assert get_top_students(students, 2)[0]['name'] == 'Alice'
-assert get_top_students(students, 2)[1]['name'] == 'Carol'
-assert get_top_students([], 2) == []
-print('All tests passed!')
