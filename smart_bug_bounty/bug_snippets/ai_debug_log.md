@@ -1,4 +1,4 @@
-# AI Debug Log – Smart Bug Bounty
+# AI Debug Log - Smart Bug Bounty
 
 ## bug1.py
 **AI Explanation**: The get_top_students() function sorts students in ascending order using sorted() with key=lambda x: x['score'], which returns the lowest scoring students first. To get the top students, the sort must be in descending order using reverse=True.
@@ -14,21 +14,21 @@
 
 ---
 
-## bug3.java
-**AI Explanation**: The deposit() method uses the =+ operator instead of +=. The =+ operator simply assigns a positive value to balance, completely ignoring the existing balance. For example, depositing 500 into an account with 1000 would set balance to 500 instead of 1500.
-**Suggested Fix**: Change balance =+ amount to balance += amount in the deposit() method.
+## bug3.cpp
+**AI Explanation**: The loop condition uses i <= arr.size() which causes out-of-bounds access. Also the return statement appears before the cout statement making the output unreachable code.
+**Suggested Fix**: Change i <= arr.size() to i < (int)arr.size(). Move cout before the return statement.
 **Confidence**: High
 
 ---
 
 ## bug4.c
-**AI Explanation**: Two critical bugs exist. First, strcpy() copies user input into a 10-byte buffer without checking the input length, causing a buffer overflow that can corrupt memory or allow arbitrary code execution. Second, divide() performs integer division by zero when called with b=0, which causes undefined behavior and typically crashes the program.
-**Suggested Fix**: Replace strcpy(buffer, input) with strncpy(buffer, input, sizeof(buffer) - 1) and add a null terminator. Add a zero-check before division: if (b == 0) return -1.
+**AI Explanation**: Two critical bugs exist. First, strcpy() copies user input into a 10-byte buffer without checking the input length, causing a buffer overflow. Second, divide() performs integer division by zero when called with b=0, which causes undefined behavior.
+**Suggested Fix**: Replace strcpy(buffer, input) with strncpy(buffer, input, sizeof(buffer) - 1) and add null terminator. Add a zero-check before division.
 **Confidence**: High
 
 ---
 
 ## bug5.py
-**AI Explanation**: Three bugs exist. First, read_file() opens a file without a context manager or try-except block, causing resource leaks if an error occurs. Second, parse_config() calls line.split('=') and unpacks exactly two values, which crashes with a ValueError if any line has no equals sign or multiple equals signs. Third, the database password is hardcoded directly in the connection string instead of being read from an environment variable, exposing credentials in source code.
-**Suggested Fix**: Use with open(filename) as f for file reading. Wrap line.split('=', 1) in a try-except block. Replace the hardcoded password with os.environ.get('DB_PASSWORD').
+**AI Explanation**: Three bugs exist. First, read_file() opens a file without a context manager or try-except block. Second, parse_config() crashes with ValueError if any line has no equals sign. Third, the database password is hardcoded in the connection string.
+**Suggested Fix**: Use with open(filename) as f for file reading. Add if '=' not in line: continue guard. Replace hardcoded password with os.environ.get('DB_PASSWORD').
 **Confidence**: High
