@@ -1,4 +1,4 @@
-# API Requirements – Inventory Management System
+# API Requirements - Inventory Management System
 
 ## Domain
 E-commerce and Warehouse Inventory Management system for tracking products, stock levels, and supplier data.

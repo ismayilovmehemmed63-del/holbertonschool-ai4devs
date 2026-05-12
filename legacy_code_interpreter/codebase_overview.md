@@ -1,4 +1,4 @@
-# Codebase Overview – Legacy Student Management System
+# Codebase Overview - Legacy Student Management System
 
 ## Age
 First release in 2008, last major update in 2014.
@@ -23,10 +23,10 @@ The codebase has not received significant maintenance since 2016.
 - SQL queries built with string concatenation (SQL injection risk)
 - Passwords stored as plain MD5 hashes without salting
 - No input sanitization or output escaping (XSS vulnerabilities)
-- High coupling between modules — changes in one area break others
+- High coupling between modules - changes in one area break others
 - No error logging or monitoring system
 - Database credentials hardcoded in multiple source files
 - No version control history prior to 2012
 - Inconsistent naming conventions across files and functions
 - Large functions exceeding 300 lines with no separation of concerns
-- No API layer — frontend and backend logic mixed in same files
+- No API layer - frontend and backend logic mixed in same files

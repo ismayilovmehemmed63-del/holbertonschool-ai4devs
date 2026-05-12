@@ -1,8 +1,8 @@
-# AI Debug Log – prompting_debug_assistant
+# AI Debug Log - prompting_debug_assistant
 
 ---
 
-## Bug 1 – bug1.py
+## Bug 1 - bug1.py
 
 **AI Diagnosis**:
 Two issues found:
@@ -32,7 +32,7 @@ def calculate_average(numbers):
 
 ---
 
-## Bug 2 – bug2.js
+## Bug 2 - bug2.js
 
 **AI Diagnosis**:
 The `await` keyword is missing before `fetchUserData()` inside the `displayDashboard` async function. Without `await`, the variable `user` holds a pending Promise object instead of the resolved value. As a result, `user.name` and `user.role` return `undefined`.
@@ -56,10 +56,10 @@ async function displayDashboard() {
 
 ---
 
-## Bug 3 – bug3.cpp
+## Bug 3 - bug3.cpp
 
 **AI Diagnosis**:
-The loop condition in `main` uses `i <= n` instead of `i < n`. Since the array has 5 elements (indices 0–4), accessing `ptr[5]` is out-of-bounds, causing a segmentation fault or undefined behavior.
+The loop condition in `main` uses `i <= n` instead of `i < n`. Since the array has 5 elements (indices 0-4), accessing `ptr[5]` is out-of-bounds, causing a segmentation fault or undefined behavior.
 
 **Suggested Fix**:
 Change `i <= n` to `i < n`.
@@ -77,10 +77,10 @@ for(int i = 0; i < n; i++) {
 
 ---
 
-## Bug 4 – bug4.py
+## Bug 4 - bug4.py
 
 **AI Diagnosis**:
-The loop uses `range(1, n)` which excludes the value `n` itself. For input `n = 5`, the loop only multiplies 1 × 2 × 3 × 4 = 24, instead of the correct 1 × 2 × 3 × 4 × 5 = 120.
+The loop uses `range(1, n)` which excludes the value `n` itself. For input `n = 5`, the loop only multiplies 1  2  3  4 = 24, instead of the correct 1  2  3  4  5 = 120.
 
 **Suggested Fix**:
 Change `range(1, n)` to `range(1, n + 1)`.

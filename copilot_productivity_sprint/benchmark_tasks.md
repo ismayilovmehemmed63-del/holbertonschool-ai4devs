@@ -1,4 +1,4 @@
-# Benchmark Tasks – Copilot Productivity Sprint
+# Benchmark Tasks - Copilot Productivity Sprint
 
 ## Task 1 - String Manipulation Function
 **Requirements**: Implement a function that takes a string and returns it reversed, with all vowels removed and first letter of each word capitalized.

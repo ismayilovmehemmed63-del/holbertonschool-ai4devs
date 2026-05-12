@@ -1,4 +1,4 @@
-# Microservices Architecture – CarPool Connect
+# Microservices Architecture - CarPool Connect
 
 ## Overview
 The microservices architecture decomposes the application into small,

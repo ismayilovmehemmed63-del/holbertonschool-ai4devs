@@ -1,8 +1,8 @@
-# Bug Reports – prompting_debug_assistant
+# Bug Reports - prompting_debug_assistant
 
 ---
 
-## Bug Report – bug1.py
+## Bug Report - bug1.py
 - **File**: bug1.py
 - **Summary**: Syntax error and missing input validation for empty list.
 - **Root Cause**: The function definition `def calculate_average(numbers)` was missing a colon (`:`). Additionally, there was no guard clause to handle empty lists, which would cause a `ZeroDivisionError`.
@@ -11,7 +11,7 @@
 
 ---
 
-## Bug Report – bug2.js
+## Bug Report - bug2.js
 - **File**: bug2.js
 - **Summary**: Missing `await` keyword caused async function to return a pending Promise.
 - **Root Cause**: The `fetchUserData()` call inside the `async` function was not preceded by `await`, so the variable `user` held an unresolved Promise object instead of the actual data.
@@ -20,16 +20,16 @@
 
 ---
 
-## Bug Report – bug3.cpp
+## Bug Report - bug3.cpp
 - **File**: bug3.cpp
 - **Summary**: Off-by-one error in loop condition caused out-of-bounds memory access.
-- **Root Cause**: The loop condition `i <= n` allowed the index to reach 5 in a 5-element array (valid indices: 0–4), causing a segmentation fault.
+- **Root Cause**: The loop condition `i <= n` allowed the index to reach 5 in a 5-element array (valid indices: 0-4), causing a segmentation fault.
 - **Resolution**: Changed `i <= n` to `i < n`. Fix was AI-suggested, no manual edits needed.
 - **Lesson Learned**: In C++, array bounds are strictly 0 to n-1. Always use `<` instead of `<=` when iterating over arrays.
 
 ---
 
-## Bug Report – bug4.py
+## Bug Report - bug4.py
 - **File**: bug4.py
 - **Summary**: Off-by-one error in range caused incorrect factorial result.
 - **Root Cause**: `range(1, n)` excludes the value `n` in Python, so the last multiplication step was skipped. For input 5, the result was 24 instead of 120.

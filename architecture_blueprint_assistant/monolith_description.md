@@ -1,4 +1,4 @@
-# Monolithic Architecture – CarPool Connect
+# Monolithic Architecture - CarPool Connect
 
 ## Overview
 The monolithic architecture packages all application components into a

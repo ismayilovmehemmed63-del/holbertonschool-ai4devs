@@ -54,7 +54,7 @@ As a passenger, I want to track my driver in real time so that I know when to be
 As a passenger, I want to rate my driver after the trip so that I can help maintain platform quality.
 **Acceptance Criteria**:
 - Rating prompt appears automatically after ride completion.
-- User can give 1–5 stars and an optional comment.
+- User can give 1-5 stars and an optional comment.
 - Driver's average rating is updated immediately.
 **Priority**: High
 

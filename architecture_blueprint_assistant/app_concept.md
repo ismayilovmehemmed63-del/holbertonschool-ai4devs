@@ -1,4 +1,4 @@
-# Application Concept – CarPool Connect
+# Application Concept - CarPool Connect
 
 ## Application
 An AI-powered carpooling platform that connects drivers and passengers
