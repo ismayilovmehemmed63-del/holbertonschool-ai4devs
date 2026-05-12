@@ -85,18 +85,20 @@
 
 ## Section 5 – calculate_grades()
 
-**Plain English**: This function takes a student's raw scores for multiple subjects and calculates their final grade using a series of deeply nested if-else conditions. Each condition checks score ranges and assigns letter grades manually for each subject.
+**Plain English**: This function takes a student's raw scores for multiple subjects and calculates their final grade using a series of deeply nested if-else conditions. Each condition manually checks specific score ranges and assigns a corresponding letter grade for every subject individually. The same grading logic is duplicated separately for each subject rather than being shared through a reusable component.
 
-**Pattern**: Long chain of nested if-else blocks with duplicated logic repeated for each subject, totaling over 150 lines with no reusable components.
+**Pattern**: Long chain of deeply nested if-else blocks with duplicated grading logic repeated independently for each subject, totaling over 150 lines with no reusable or shared components across subjects.
 
 **Issues**:
-- Duplicated logic makes maintenance error-prone across all subjects
-- Changing the grading scale requires updates in multiple places simultaneously
-- No unit tests exist to verify correctness of grade boundaries
-- The function cannot be extended without modifying existing code directly
+- Duplicated logic makes maintenance error-prone — the same grading scale is written multiple times
+- Changing the grading scale requires manual updates in multiple separate locations
+- No unit tests exist to verify correctness of grade boundary values
+- The function violates the Open-Closed Principle and cannot be extended without modifying existing code
+- Deeply nested conditions reduce readability and increase the chance of introducing bugs during edits
 
 **Improvements**:
-- Extract grade calculation into a single reusable function accepting a score and returning a grade
-- Replace nested if-else blocks with a lookup table or dictionary for grade ranges
-- Add comprehensive unit tests covering all boundary values for each grade band
-- Apply the Open-Closed Principle so new subjects can be added without modifying existing logic
+- Extract grade calculation into a single reusable helper function that accepts a numeric score and returns a letter grade
+- Replace all nested if-else blocks with a lookup table or ordered list of grade thresholds
+- Add comprehensive unit tests covering all boundary values and edge cases for each grade band
+- Apply the Open-Closed Principle so new subjects or grading scales can be added without touching existing logic
+- Separate the grade calculation logic from the reporting and display logic for better testability
