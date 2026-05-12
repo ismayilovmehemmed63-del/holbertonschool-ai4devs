@@ -1,19 +1,29 @@
 # Risk Assessment – Legacy Student Management System
 
-| Risk | Severity | Notes |
-|------|----------|-------|
-| SQL Injection vulnerabilities | High | User input concatenated directly into SQL queries in multiple functions including authenticate_user() and save_student_data() |
-| Broken password hashing (MD5) | High | All passwords stored as unsalted MD5 hashes which are easily reversible using rainbow tables |
-| Hardcoded database credentials | High | Database username and password written directly in source files instead of environment variables |
-| No input validation or sanitization | High | Raw form data inserted into database without any checks, allowing malformed or malicious data storage |
-| XSS vulnerabilities in output | High | HTML output built by concatenating unescaped user data, enabling cross-site scripting attacks |
-| Zero test coverage | Medium | No unit tests, integration tests, or automated tests of any kind exist across the entire codebase |
-| Session fixation vulnerability | Medium | Session IDs not regenerated after login, allowing attackers to hijack authenticated sessions |
-| No CSRF protection | Medium | No CSRF tokens on any form submissions, making state-changing requests vulnerable to forgery |
-| Sensitive data stored unencrypted | Medium | Personal student information stored in plain text in the database with no encryption at rest |
-| End-of-life dependencies | Medium | PHP 5.3 and MySQL 5.1 are both end-of-life with no security patches available |
-| No error handling or logging | Medium | Database failures and application errors crash silently with no logs for debugging or auditing |
-| Tight coupling between modules | Medium | Business logic, data access, and presentation mixed together making refactoring extremely difficult |
-| No audit trail for data changes | Low | No record of who modified student data or when changes were made |
-| Inconsistent coding standards | Low | Mixed procedural and OOP styles with inconsistent naming conventions across files |
-| No caching mechanism | Low | Repeated database queries for the same data with no caching layer, reducing performance under load |
+## Risk 1 – SQL Injection Vulnerabilities
+- **Severity**: High
+- **Notes**: User input is concatenated directly into SQL queries in authenticate_user() and save_student_data(). Attackers can manipulate queries to access or destroy all database records.
+
+## Risk 2 – Broken Password Hashing
+- **Severity**: High
+- **Notes**: All passwords are stored as unsalted MD5 hashes. MD5 is cryptographically broken and easily reversible using publicly available rainbow tables, exposing all user credentials.
+
+## Risk 3 – Hardcoded Database Credentials
+- **Severity**: High
+- **Notes**: Database username and password are written directly in source files instead of environment variables. Any developer or attacker with source access can compromise the entire database.
+
+## Risk 4 – Zero Test Coverage
+- **Severity**: Medium
+- **Notes**: No unit tests, integration tests, or automated tests exist anywhere in the codebase. Any code change risks introducing undetected regressions in critical business logic.
+
+## Risk 5 – End-of-Life Dependencies
+- **Severity**: Medium
+- **Notes**: The system runs on PHP 5.3 and MySQL 5.1, both of which reached end-of-life and no longer receive security patches. Known vulnerabilities in these versions remain permanently unpatched.
+
+## Risk 6 – No Input Validation
+- **Severity**: High
+- **Notes**: Raw form data is inserted into the database without any validation or sanitization. This allows malformed, malicious, or corrupted data to be permanently stored in the system.
+
+## Risk 7 – No Error Handling or Logging
+- **Severity**: Medium
+- **Notes**: Database failures and application errors crash silently with no logs generated. This makes debugging production issues extremely difficult and leaves no audit trail for incidents.
