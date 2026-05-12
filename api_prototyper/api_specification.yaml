@@ -1,11 +1,10 @@
 openapi: 3.0.3
 info:
   title: Inventory Management API
-  description: API for managing e-commerce inventory, products, and categories.
+  description: Professional API for warehouse and stock management.
   version: 1.0.0
 servers:
   - url: http://localhost:8000
-    description: Local development server
 components:
   securitySchemes:
     bearerAuth:
@@ -15,100 +14,56 @@ components:
   schemas:
     Product:
       type: object
-      required:
-        - name
-        - sku
-        - price
+      required: [name, sku, price]
       properties:
-        id:
-          type: integer
-        name:
-          type: string
-        sku:
-          type: string
-        price:
-          type: number
-        quantity:
-          type: integer
+        id: { type: integer }
+        name: { type: string }
+        sku: { type: string }
+        price: { type: number }
+        quantity: { type: integer }
     Error:
       type: object
       properties:
-        message:
-          type: string
+        code: { type: integer }
+        message: { type: string }
 paths:
   /products:
     get:
-      summary: List all products
+      summary: (1) List all products with pagination
       parameters:
         - in: query
           name: limit
-          schema:
-            type: integer
-            default: 10
+          schema: { type: integer, default: 10 }
         - in: query
           name: offset
-          schema:
-            type: integer
-            default: 0
+          schema: { type: integer, default: 0 }
       responses:
         '200':
-          description: A list of products
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Product'
+          description: List of products
+        '401':
+          description: Unauthorized
     post:
-      summary: Create a new product
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Product'
+      summary: (2) Create a new product
+      security: [{ bearerAuth: [] }]
       responses:
-        '201':
-          description: Product created
+        '201': { description: Created }
+        '400': { description: Bad Request }
   /products/{id}:
     get:
-      summary: Get product by ID
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
+      summary: (3) Get product by ID
+      parameters: [{ name: id, in: path, required: true, schema: { type: integer } }]
       responses:
-        '200':
-          description: Product details
-        '404':
-          description: Product not found
+        '200': { description: Success }
+        '404': { description: Not Found }
     put:
-      summary: Update a product
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
+      summary: (4) Update product
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: integer } }]
       responses:
-        '200':
-          description: Product updated
+        '200': { description: Updated }
     delete:
-      summary: Delete a product
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
+      summary: (5) Delete product
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: integer } }]
       responses:
-        '204':
-          description: Product deleted
+        '204': { description: Deleted }
