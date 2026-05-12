@@ -9,44 +9,46 @@
 
 ## Inline Comments
 
-- **(line 12) `hash_password()`** — PBKDF2 iteration count of 100,000 is acceptable today but should be configurable via a constant (e.g., `PBKDF2_ITERATIONS = 100_000`) so it can be increased without touching function logic.
+### 🔒 Security Persona
 
-- **(line 22) `verify_password()`** — Good use of `hmac.compare_digest()` to prevent timing attacks. Consider adding a docstring note explaining *why* this is used instead of `==`.
+- **(line 12) `hash_password()`** — PBKDF2 iteration count of 100,000 is acceptable today but should be a named constant `PBKDF2_ITERATIONS = 100_000` so it can be updated without changing function logic.
+- **(line 22) `verify_password()`** — Correct use of `hmac.compare_digest()` prevents timing attacks. Add a docstring explaining why `==` must never be used here.
+- **(line 78) `create_session()`** — Replace `os.urandom(32).hex()` with `secrets.token_hex(32)` — the stdlib-recommended API for cryptographic tokens since Python 3.6.
+- **(line 110) `AuthService.register()`** — Email validation only checks for presence of `@`. Use `re` module to reject malformed addresses like `a@` or `@b.com`.
+- **(line 118) `AuthService.register()`** — Password policy only enforces minimum length. Require at least one digit and one special character to meet standard security policies.
+- **(line 130) `AuthService.login()`** — No brute-force protection. Add a failed-attempt counter per username and lock the account for 5 minutes after 5 consecutive failures.
+- **(line 145) `AuthService.get_current_user()`** — Returns raw user dict containing `salt` and `hashed` password. Strip sensitive fields before returning data to callers.
 
-- **(line 35) `UserStore._users`** — Using a plain `dict` means data is lost on restart. Add a comment warning that this is in-memory only and not suitable for production without a persistent backend.
+### ⚡ Performance Persona
 
-- **(line 48) `add_user()`** — No check for duplicate email addresses. Two users could register with the same email, making password-reset flows impossible later.
+- **(line 67) `SessionManager.SESSION_TTL`** — Sessions expire after 1 hour but are only removed lazily on access. Under high concurrency, stale sessions accumulate and waste memory.
+- **(line 88) `validate_session()`** — Expired sessions deleted one at a time. Add a `cleanup_expired_sessions()` batch method and call it every N logins to keep memory bounded.
+- **(line 35) `UserStore._users`** — Plain `dict` lookup is O(1) but offers no indexing by email. If email-based lookups are needed later, a secondary index dict `_emails` should be maintained in parallel.
 
-- **(line 67) `SessionManager.SESSION_TTL`** — Magic number `3600` should be a named constant with a comment explaining the business rule (1-hour session expiry).
+### 🛠️ Maintainability Persona
 
-- **(line 78) `create_session()`** — Session token is generated with `os.urandom(32).hex()` which is cryptographically secure. Consider using `secrets.token_hex(32)` instead — it is the stdlib-recommended API for security tokens since Python 3.6.
-
-- **(line 88) `validate_session()`** — Expired sessions are deleted lazily (only when accessed). Under high load, stale sessions accumulate in memory. Add a periodic cleanup method or use TTL-aware data structures.
-
-- **(line 110) `AuthService.register()`** — Email validation only checks for `@`. Use `re` module or a dedicated validator to catch obviously malformed addresses like `a@` or `@b`.
-
-- **(line 118) `AuthService.register()`** — Password strength check only enforces minimum length. Consider checking for at least one digit and one special character to meet common security policies.
-
-- **(line 130) `AuthService.login()`** — No rate limiting or account lockout after repeated failed attempts. A brute-force attack could cycle through passwords indefinitely.
-
-- **(line 145) `AuthService.get_current_user()`** — Returns the full user dict including `salt` and `hashed` fields. Sensitive fields should be stripped before returning user data to callers.
+- **(line 35) `UserStore._users`** — In-memory store loses all data on restart. Add a comment clearly warning this is not production-ready without a persistent backend.
+- **(line 48) `add_user()`** — No duplicate email check. Two accounts with the same email make password-reset flows impossible. Add email uniqueness validation.
+- **(line 95) `AuthService.__init__()`** — `UserStore` and `SessionManager` are instantiated internally, making unit testing difficult. Inject them as constructor parameters to enable mocking.
 
 ---
 
 ## Global Feedback
 
-- **Security — No rate limiting:** The login function has no lockout mechanism. Recommend adding a failed-attempt counter per username with a cooldown (e.g., lock for 5 minutes after 5 failures).
+### 🔒 Security
 
-- **Security — Sensitive data exposure:** `get_current_user()` returns the raw user record including password hash and salt. Create a `sanitize_user()` helper that returns only safe fields (`username`, `email`, `created_at`, `is_active`).
+- **No rate limiting:** The `login()` method has no lockout after repeated failures. A brute-force attack can cycle through passwords indefinitely. Implement exponential backoff or account lockout after 5 failed attempts.
+- **Sensitive data exposure:** `get_current_user()` leaks password hash and salt to callers. Add a `sanitize_user()` helper returning only `username`, `email`, `created_at`, and `is_active`.
+- **Weak email validation:** Regex or a dedicated library (e.g., `email-validator`) should replace the single `@` check to prevent invalid registrations.
 
-- **Maintainability — Single Responsibility:** `AuthService` handles both business logic and data access. Consider separating into a `UserRepository` for persistence and an `AuthService` for logic, following the Repository pattern.
+### ⚡ Performance
 
-- **Maintainability — No logging:** Production auth systems must log login attempts, failures, and logouts (without logging passwords). Add a `logging` module integration with appropriate log levels.
+- **Session memory leak:** Expired sessions accumulate indefinitely. Introduce a `cleanup_expired_sessions()` method triggered periodically (e.g., every 100 logins) or use a TTL-aware cache like `cachetools.TTLCache`.
+- **Thread safety:** `UserStore._users` and `SessionManager._sessions` are plain dicts. Concurrent writes in a multi-threaded server risk data corruption. Protect mutations with `threading.Lock()`.
 
-- **Performance — Session cleanup:** Expired sessions are never proactively removed. Add a `cleanup_expired_sessions()` method and call it periodically (e.g., on every 100th login) to prevent unbounded memory growth.
+### 🛠️ Maintainability
 
-- **Testability — Hard-coded dependencies:** `AuthService` instantiates `UserStore` and `SessionManager` internally. Inject them as constructor parameters to allow mocking in unit tests.
-
-- **Robustness — Thread safety:** `UserStore._users` and `SessionManager._sessions` are plain dicts. In a multi-threaded server, concurrent writes could corrupt state. Use `threading.Lock()` or switch to thread-safe structures.
-
-- **Documentation — Missing module docstring:** The file lacks a top-level docstring describing the module's purpose, public API, and usage example. Add one following PEP 257 conventions.
+- **Single Responsibility violation:** `AuthService` combines business logic and data access. Refactor by extracting a `UserRepository` class for persistence, keeping `AuthService` focused on auth logic only.
+- **No logging:** Auth events (login success, login failure, logout, registration) must be logged for auditing. Integrate Python `logging` module with appropriate levels (`INFO`, `WARNING`).
+- **Missing module docstring:** The file has no top-level docstring. Add one per PEP 257 describing the module's purpose, public classes, and a usage example.
+- **Hard-coded dependencies:** Constructor should accept `user_store` and `session_manager` as optional parameters with defaults, enabling dependency injection for testing.
